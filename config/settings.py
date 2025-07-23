@@ -35,10 +35,9 @@ THIRD_PARTY_APPS = [
 
 CUSTOM_APPS = [
     "users.apps.UsersConfig",
-    "accommodations.apps.AccomodationsConfig",
-    "admin_panel.apps.Admin_panelConfig",
+    "accommodations.apps.AccommodationsConfig",
+    "admin_panel.apps.AdminPanelConfig",
     "media.apps.MediaConfig",
-    "messeages.apps.MessegesConfig",
     "reviews.apps.ReviewsConfig",
     "wishlists.apps.WishlistsConfig",
 ]
@@ -135,3 +134,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CUSTOM USER
+AUTH_USER_MODEL = "users.User"
