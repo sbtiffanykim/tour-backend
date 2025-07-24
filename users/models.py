@@ -6,7 +6,7 @@ from django.core.validators import EmailValidator
 
 class User(AbstractUser):
 
-    phone_validator = RegexValidator(regex=r"^01[0-9]-\d{3,4}-\d{4}$", message="The phone number format is invalid")
+    phone_validator = RegexValidator(regex=r"^01[0-9]{8,9}$", message="The phone number format is invalid")
 
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
