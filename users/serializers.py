@@ -21,3 +21,14 @@ class SignUpSeriailzer(PhoneNumberValidationMixin, serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+
+
+class PrivateUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "last_name", "phone_number", "avatar", "points"]
+        read_only_fields = ["username", "points"]  # normal user cannot change points and his username
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)

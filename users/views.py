@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import SignUpSeriailzer
+from .serializers import SignUpSeriailzer, PrivateUserSerializer
 
 
 class SignUpView(APIView):
@@ -53,3 +53,21 @@ class LogInView(APIView):
             return Response({"success": "Login successfully"}, status=status.HTTP_200_OK)
         else:
             raise AuthenticationFailed("Invalid username or password")
+
+
+class PrivateUserView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = PrivateUserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        serializer = PrivateUserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            validated_profile = serializer.save()
+            return Response(PrivateUserSerializer(validated_profile).data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
