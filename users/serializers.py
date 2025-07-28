@@ -24,6 +24,7 @@ class SignUpSeriailzer(PhoneNumberValidationMixin, serializers.ModelSerializer):
 
 
 class PrivateUserSerializer(PhoneNumberValidationMixin, serializers.ModelSerializer):
+    """Serializer for retrieving the authenticated user's profile information."""
 
     class Meta:
         model = User
@@ -32,3 +33,30 @@ class PrivateUserSerializer(PhoneNumberValidationMixin, serializers.ModelSeriali
 
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Serializer for changing password. Includes custom validation to ensure passwords match."""
+
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = self.context["request"].user
+        current_password = data.get("current_password")
+        new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
+
+        if not user.check_password(current_password):
+            raise serializers.ValidationError("Current password is incorrect")
+        if new_password != confirm_password:
+            raise serializers.ValidationError("New passwords do not match")
+
+        validate_password(new_password)
+        return data
+
+    def save(self, **kwargs):
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
+        user.save()

@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import SignUpSeriailzer, PrivateUserSerializer
+from .serializers import SignUpSeriailzer, PrivateUserSerializer, ChangePasswordSerializer
 
 
 class SignUpView(APIView):
@@ -71,3 +71,14 @@ class PrivateUserView(APIView):
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"success": "Password changed successfully"}, status=status.HTTP_200_OK)
