@@ -65,12 +65,9 @@ class PrivateUserView(APIView):
 
     def put(self, request):
         serializer = PrivateUserSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            validated_profile = serializer.save()
-            return Response(PrivateUserSerializer(validated_profile).data, status=status.HTTP_200_OK)
-
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        validated_profile = serializer.save()
+        return Response(PrivateUserSerializer(validated_profile).data, status=status.HTTP_200_OK)
 
 
 class ChangePasswordView(APIView):
