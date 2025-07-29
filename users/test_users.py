@@ -23,6 +23,18 @@ def base_payload():
 User = get_user_model()
 SIGN_UP_URL = "/api/v1/users/sign-up"
 LOGIN_URL = "/api/v1/users/login"
+LOGOUT_URL = "/api/v1/users/logout"
+
+
+@pytest.fixture
+def authenticated_client(client, base_payload):
+    User.objects.create_user(**base_payload)
+    login_data = {"username": base_payload["username"], "password": base_payload["password"]}
+    client.post(LOGIN_URL, login_data)
+
+    # token might be needed
+
+    return client
 
 
 # SignUpView Tests - required fields: username, password, first_name, last_name, email, phone_number
@@ -166,11 +178,18 @@ def test_login_wrong_password(client, base_payload):
 
 # LogoutView Tests
 
-# Success
-# - logs out authenticated user
 
-# Failure
-# - unauthenticated user attempts logout
+# Success
+@pytest.mark.django_db
+def test_logout_success(authenticated_client):
+    response = authenticated_client.post(LOGOUT_URL)
+    assert response.status_code == 200
+
+
+# Failure - unauthenticated user attempts logout
+def test_logout_fail(client):
+    response = client.post(LOGOUT_URL)
+    assert response.status_code == 403
 
 
 # PrivateUserView Tests - fields: username, points, email, first_name, last_name, phone_number, avatar
