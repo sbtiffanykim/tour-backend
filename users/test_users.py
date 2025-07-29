@@ -22,6 +22,8 @@ def base_payload():
 
 User = get_user_model()
 SIGN_UP_URL = "/api/v1/users/sign-up"
+LOGIN_URL = "/api/v1/users/login"
+
 
 # SignUpView Tests - required fields: username, password, first_name, last_name, email, phone_number
 
@@ -113,13 +115,53 @@ def test_invalid_email(client):
 
 # LoginView Tests - required fields: username, password
 
-# Success
-# - logs in with valid credentials
 
-# Failure
-# 1. missing required field(s)
-# 2. non-existent user
-# 3. incorrect password
+# Helper
+def login(client, payload_override=None):
+    login_data = {
+        "username": "test123",
+        "password": "test123!",
+    }
+    if payload_override:
+        login_data.update(payload_override)
+    return client.post(LOGIN_URL, login_data)
+
+
+# Success
+@pytest.mark.django_db
+def test_login_success(client, base_payload):
+    User.objects.create_user(**base_payload)
+    response = login(client)
+    assert response.status_code == 200
+
+
+# Failure 1. missing required field(s)
+@pytest.mark.parametrize("missing_fields", ["username", "password"])
+@pytest.mark.django_db
+def test_login_missing_fields(client, base_payload, missing_fields):
+    User.objects.create_user(**base_payload)
+    login_data = {
+        "username": base_payload["username"],
+        "password": base_payload["password"],
+    }
+    login_data.pop(missing_fields)
+    response = client.post(LOGIN_URL, login_data)
+    assert response.status_code == 400
+
+
+# Failure 2. non-existent user
+@pytest.mark.django_db
+def test_login_nonexistent_user(client):
+    response = login(client)
+    assert response.status_code == 403
+
+
+# Failure 3. incorrect password
+@pytest.mark.django_db
+def test_login_wrong_password(client, base_payload):
+    User.objects.create_user(**base_payload)
+    response = login(client, {"password": "wrong_password"})
+    assert response.status_code == 403
 
 
 # LogoutView Tests
