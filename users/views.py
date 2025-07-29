@@ -18,11 +18,11 @@ class SignUpView(APIView):
                 {
                     "message": "User created successfully",
                     "user": {
-                        "Username": serializer.data["username"],
-                        "First name": serializer.data["first_name"],
-                        "Last name": serializer.data["last_name"],
-                        "Email": serializer.data["email"],
-                        "Phone number": serializer.data["phone_number"],
+                        "username": serializer.data["username"],
+                        "first_name": serializer.data["first_name"],
+                        "last_name": serializer.data["last_name"],
+                        "email": serializer.data["email"],
+                        "phone_number": serializer.data["phone_number"],
                     },
                 },
                 status=status.HTTP_201_CREATED,
