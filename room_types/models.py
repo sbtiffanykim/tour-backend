@@ -4,12 +4,12 @@ from accommodations.models import Accommodation
 
 class BedType(models.TextChoices):
     SINGLE = "single", "Single"
-    SUPERSINGLE = "superSingle", "SuperSingle"
-    TWIN = "Twin", "Twin"
+    SUPERSINGLE = "superSingle", "Super Single"
+    DOUBLE = "double", "Double"
     QUEEN = "Queen", "Queen"
     KING = "king", "King"
-    SUPERKING = "SuperKing", "SuperKing"
-    BUNK = "bunk", "BUNK"
+    SUPERKING = "superKing", "Super King"
+    BUNK = "bunk", "Bunk"
     KOREAN = "korean", "Korean Bedding"
 
 
