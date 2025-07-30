@@ -1,3 +1,14 @@
 from django.db import models
+from room_types.models import RoomType
 
-# Create your models here.
+
+class Package(models.Model):
+    """Model Definition for package"""
+
+    room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="package")
+    name = models.CharField(max_length=50)
+    price = models.PositiveIntegerField(help_text="KRW")
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.room_type} - {self.name}"

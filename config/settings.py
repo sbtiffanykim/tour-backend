@@ -37,6 +37,7 @@ CUSTOM_APPS = [
     "users.apps.UsersConfig",
     "accommodations.apps.AccommodationsConfig",
     "room_types.apps.RoomTypesConfig",
+    "packages.apps.PackagesConfig",
     "admin_panel.apps.AdminPanelConfig",
     "media.apps.MediaConfig",
     "reviews.apps.ReviewsConfig",
