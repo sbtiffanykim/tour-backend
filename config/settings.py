@@ -36,6 +36,7 @@ THIRD_PARTY_APPS = [
 CUSTOM_APPS = [
     "users.apps.UsersConfig",
     "accommodations.apps.AccommodationsConfig",
+    "room_types.apps.RoomTypesConfig",
     "admin_panel.apps.AdminPanelConfig",
     "media.apps.MediaConfig",
     "reviews.apps.ReviewsConfig",

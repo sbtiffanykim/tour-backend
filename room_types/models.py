@@ -14,8 +14,17 @@ class BedType(models.TextChoices):
 
 
 class BedConfiguration(models.Model):
+    room_type = models.ForeignKey(
+        "RoomType", on_delete=models.CASCADE, related_name="bed_config", blank=True, null=True
+    )
     bed_type = models.CharField(max_length=20, choices=BedType.choices)
     count = models.PositiveSmallIntegerField()
+
+    class Meta:
+        unique_together = ("room_type", "bed_type")
+
+    def __str__(self):
+        return f"{self.count} x {self.get_bed_type_display()}"
 
 
 class RoomType(models.Model):
@@ -27,8 +36,7 @@ class RoomType(models.Model):
     area = models.DecimalField(max_digits=4, decimal_places=2, help_text="객실 면적", null=True, blank=True)
     num_living_room = models.PositiveSmallIntegerField(default=1, help_text="거실 수")
     num_bedrooms = models.PositiveSmallIntegerField(default=0, help_text="침실 수")
-    num_bathroos = models.PositiveSmallIntegerField(default=0, help_text="화장실 수")
-    beds = models.ManyToManyField(BedConfiguration, blank=True)
+    num_bathrooms = models.PositiveSmallIntegerField(default=0, help_text="화장실 수")
 
     def __str__(self):
-        return self.name
+        return f"{self.accommodation} - {self.name}"
