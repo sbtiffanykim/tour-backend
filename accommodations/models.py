@@ -14,7 +14,7 @@ class Accommodation(models.Model):
     check_out = models.TimeField(null=True, blank=True)
     cancellation_policy = models.TextField(null=True, blank=True)
     info = models.TextField(null=True, blank=True)
-    amenities = models.ManyToManyField("rooms.Amenity", related_name="accomodations")
+    amenities = models.ManyToManyField("accommodations.Amenity", related_name="accomodations")
 
 
 class Amenity(models.Model):
