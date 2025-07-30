@@ -25,16 +25,13 @@ SIGN_UP_URL = "/api/v1/users/sign-up"
 LOGIN_URL = "/api/v1/users/login"
 LOGOUT_URL = "/api/v1/users/logout"
 PROFILE_URL = "/api/v1/users/me"
+CHANGE_PASSWORD_URL = "/api/v1/users/change-password"
 
 
 @pytest.fixture
 def authenticated_client(client, base_payload):
-    User.objects.create_user(**base_payload)
-    login_data = {"username": base_payload["username"], "password": base_payload["password"]}
-    client.post(LOGIN_URL, login_data)
-
-    # token might be needed
-
+    user = User.objects.create_user(**base_payload)
+    client.force_login(user)
     return client
 
 
@@ -279,10 +276,61 @@ def test_profile_update_invalid_avatar_format(authenticated_client):
 
 # ChangePasswordView Tests - required fields: current_password, new_password, confirm_password
 
+
+# Helper
+def change_password(authenticated_client, payload_override=None):
+    password_data = {
+        "current_password": "test123!",
+        "new_password": "test456@",
+        "confirm_password": "test456@",
+    }
+    if payload_override:
+        password_data.update(payload_override)
+    print(password_data)
+    return authenticated_client.post(CHANGE_PASSWORD_URL, password_data)
+
+
 # Success
+@pytest.mark.django_db
+def test_change_password_success(authenticated_client):
+    response = change_password(authenticated_client)
+    assert response.status_code == 200
+
 
 # Failure
 # 1. missing required field(s)
+@pytest.mark.parametrize("missing_field", ["current_password", "new_password", "confirm_password"])
+@pytest.mark.django_db
+def test_change_password_missing_field(client, missing_field, base_payload):
+    user = User.objects.create_user(**base_payload)
+    client.force_login(user)
+    password_data = {
+        "current_password": "test123!",
+        "new_password": "test456@",
+        "confirm_password": "test456@",
+    }
+    password_data.pop(missing_field)
+    response = client.post(CHANGE_PASSWORD_URL, password_data)
+    assert response.status_code == 400
+    assert missing_field in response.data
+
+
 # 2. current password is incorrect
+@pytest.mark.django_db
+def test_change_password_wrong_password(authenticated_client):
+    response = change_password(authenticated_client, {"current_password": "wrong_password"})
+    assert response.status_code == 400
+
+
 # 3. new password and confirm password do not match
+@pytest.mark.django_db
+def test_change_password_password_not_match(authenticated_client):
+    response = change_password(authenticated_client, {"confirm_password": "wrong_password"})
+    assert response.status_code == 400
+
+
 # 4. new password fails validation (e.g., too short, common)
+@pytest.mark.django_db
+def test_change_password_password_not_match(authenticated_client):
+    response = change_password(authenticated_client, {"new_password": "123", "confirm_password": "123"})
+    assert response.status_code == 400
