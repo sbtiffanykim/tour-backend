@@ -11,12 +11,19 @@ class RegionChioce(models.TextChoices):
     JEJU = "jeju", "Jeju"
 
 
+class AccommodationType(models.TextChoices):
+    HOTEL = "hotel", "Hotel"
+    RESORT = "resort", "Resort"
+
+
 class Accommodation(models.Model):
     """Model Definition for accomodations"""
 
     name = models.CharField(max_length=50)
     location = models.CharField(max_length=150)
     region = models.CharField(max_length=20, choices=RegionChioce)
+    city = models.ForeignKey("accommodations.City", on_delete=models.SET_NULL, null=True, related_name="accommodations")
+    type = models.CharField(max_length=10, choices=AccommodationType, default=AccommodationType.RESORT)
     x_coordinate = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     y_coordinate = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     homepage = models.CharField(max_length=100, null=True, blank=True)
@@ -40,6 +47,18 @@ class Amenity(models.Model):
 
     class Meta:
         verbose_name_plural = "Amenities"
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    """Model Definition for cities"""
+
+    name = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Cities"
 
     def __str__(self):
         return self.name
