@@ -7,7 +7,7 @@ class Package(models.Model):
 
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="package")
     name = models.CharField(max_length=50)
-    price = models.PositiveIntegerField(help_text="KRW")
+    price = models.PositiveIntegerField(help_text="default price in KRW")
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
