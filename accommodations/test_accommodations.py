@@ -1,9 +1,12 @@
 import pytest
 from rest_framework.test import APIClient
-from .models import Accommodation
+from .models import Accommodation, City
+from room_types.models import RoomType
+from packages.models import Package
 
 # ----- Constants -----
-LIST_URL = "/api/v1/accommodations/"
+BASE_URL = "/api/v1/accommodations/"
+DETAIL_URL = lambda pk: f"{BASE_URL}{pk}"
 
 
 # ----- Fixtures -----
@@ -14,10 +17,26 @@ def client():
 
 @pytest.fixture
 def sample_accommodations(db):
-    return [
-        Accommodation.objects.create(name="Sample Hotel", location="Sample 123 Street", region="seoul"),
-        Accommodation.objects.create(name="Sample Resort", location="Sample 123 Street", region="gyeongsang"),
-    ]
+    city1 = City.objects.create(name="Seoul")
+    city2 = City.objects.create(name="Busan")
+
+    acc1 = Accommodation.objects.create(
+        name="Seoul Hotel", location="Seoul 111", region="seoul", city=city1, type="hotel"
+    )
+
+    acc2 = Accommodation.objects.create(
+        name="Busan Resort", location="Busan 222", region="gyeongsang", city=city2, type="resort"
+    )
+
+    # Connect to acc1
+    room1 = RoomType.objects.create(accommodation=acc1, name="Deluxe Room", base_occupancy=2, max_occupancy=2)
+    Package.objects.create(room_type=room1, name="Room Only", price=80000)
+
+    # Connect to acc2
+    room2 = RoomType.objects.create(accommodation=acc2, name="Double Room", base_occupancy=2, max_occupancy=3)
+    Package.objects.create(room_type=room2, name="Room Only", price=100000)
+
+    return [acc1, acc2]
 
 
 # ----- AccommodationListView Test -----
@@ -25,21 +44,49 @@ def sample_accommodations(db):
 
 # Success 1: All
 def test_get_accommodation_list_all_success(client, sample_accommodations):
-    response = client.get(LIST_URL)
+    response = client.get(BASE_URL)
     assert response.status_code == 200
-    assert len(response.data) == 2
+    assert len(response.data["data"]) == 2
 
 
 # Success 2: With region params
 @pytest.mark.parametrize("region", ["seoul", "gyeongsang"])
 def test_get_accommodation_list_with_region_success(client, sample_accommodations, region):
-    response = client.get(LIST_URL, {"region": region})
+    response = client.get(BASE_URL, {"region": region})
     assert response.status_code == 200
-    assert all(item["region"] == region for item in response.data)
+    assert region in response.data["region"]
 
 
 # Failure: No matching region
 def test_get_accommodation_list_no_match(client, sample_accommodations):
-    response = client.get(LIST_URL, {"region": "null"})
+    response = client.get(BASE_URL, {"region": "null"})
     assert response.status_code == 404
     assert response.data["error"] == "No accommodations found"
+
+
+# ----- AccommodationDetailView Test -----
+
+
+# Success
+@pytest.mark.django_db
+def test_get_accommodation_detail_success(client, sample_accommodations):
+    accommodation = sample_accommodations[0]
+    response = client.get(DETAIL_URL(accommodation.id))
+
+    assert response.status_code == 200
+    assert response.data["id"] == accommodation.id
+    assert response.data["name"] == accommodation.name
+    assert "room_types" in response.data
+    assert isinstance(response.data["room_types"], list)
+    assert "packages" in response.data["room_types"][0]
+    assert isinstance(response.data["room_types"][0]["packages"], list)
+
+
+# Failure
+@pytest.mark.django_db
+def test_get_accommodation_detail_not_found(client, sample_accommodations):
+    non_existent_id = 999999
+    response = client.get(DETAIL_URL(non_existent_id))
+
+    assert response.status_code == 404
+    assert response.data["detail"] == "Accommodation not found"
