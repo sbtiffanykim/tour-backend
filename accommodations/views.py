@@ -34,7 +34,7 @@ class AccommodationDetailView(APIView):
     def get_object(self, pk):
         try:
             # media(photos) should be added after implementing a media model
-            return Accommodation.objects.prefetch_related("room_type__package").get(pk=pk)
+            return Accommodation.objects.prefetch_related("room_types__packages").get(pk=pk)
         except Accommodation.DoesNotExist:
             raise NotFound("Accommodation not found")
 

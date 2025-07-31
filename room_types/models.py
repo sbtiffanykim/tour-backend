@@ -28,7 +28,7 @@ class BedConfiguration(models.Model):
 
 
 class RoomType(models.Model):
-    accommodation = models.ForeignKey(Accommodation, on_delete=models.CASCADE, related_name="room_type")
+    accommodation = models.ForeignKey(Accommodation, on_delete=models.CASCADE, related_name="room_types")
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     base_occupancy = models.PositiveSmallIntegerField(help_text="기준 인원")

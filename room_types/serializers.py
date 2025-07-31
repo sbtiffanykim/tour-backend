@@ -9,4 +9,4 @@ class RoomTypeWithPackageSerializer(ModelSerializer):
 
     class Meta:
         model = RoomType
-        fields = ("pk", "name", "packages")
+        fields = "__all__"
