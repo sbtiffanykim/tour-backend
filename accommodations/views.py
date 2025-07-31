@@ -22,10 +22,11 @@ class AccommodationListView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         accommodations = self.get_queryset()
+        region = self.request.query_params.get("region", "all")
         if not accommodations.exists():
             return Response({"error": "No accommodations found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(accommodations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"region": region, "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class AccommodationDetailView(APIView):
