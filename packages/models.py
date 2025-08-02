@@ -9,6 +9,7 @@ class Package(models.Model):
     name = models.CharField(max_length=50)
     price = models.PositiveIntegerField(help_text="default price in KRW")
     description = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.room_type} - {self.name}"
