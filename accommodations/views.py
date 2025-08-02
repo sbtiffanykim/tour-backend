@@ -3,6 +3,8 @@ from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.utils import timezone
+from datetime import datetime, date, timedelta
 from .models import Accommodation
 from .serializers import AccommodationListSerializer, AccommodationDetailSerializer
 from users.models import User
@@ -30,16 +32,12 @@ class AccommodationListView(ListAPIView):
 
 
 class AccommodationDetailView(APIView):
-    """API view to retreive an accommodation with given info"""
-
-    def get_object(self, pk):
-        try:
-            # media(photos) should be added after implementing a media model
-            return Accommodation.objects.prefetch_related("room_types__packages").get(pk=pk)
-        except Accommodation.DoesNotExist:
-            raise NotFound("Accommodation not found")
+    """API view to retrieve an accommodation detailed info"""
 
     def get(self, request, pk):
-        accommodation = self.get_object(pk)
+        try:
+            accommodation = Accommodation.objects.prefetch_related("room_types__packages").get(pk=pk)
+        except Accommodation.DoesNotExist:
+            raise NotFound("Accommodation not found")
         serializer = AccommodationDetailSerializer(accommodation)
         return Response(serializer.data, status=status.HTTP_200_OK)
