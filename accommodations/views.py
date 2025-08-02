@@ -4,9 +4,12 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
+from django.db.models import Prefetch
 from datetime import datetime, date, timedelta
 from .models import Accommodation
-from .serializers import AccommodationListSerializer, AccommodationDetailSerializer
+from room_types.models import RoomType
+from packages.models import Package
+from .serializers import AccommodationListSerializer, AccommodationDetailSerializer, AllPackageCombinationsSerializer
 from users.models import User
 
 
@@ -40,4 +43,18 @@ class AccommodationDetailView(APIView):
         except Accommodation.DoesNotExist:
             raise NotFound("Accommodation not found")
         serializer = AccommodationDetailSerializer(accommodation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AllPackageCombinationsView(APIView):
+    """Returns all room_type + package combinations for a given accommodation regardless of availability or selected date"""
+
+    def get(self, request, pk):
+        try:
+            combinations = RoomType.objects.filter(accommodation_id=pk).prefetch_related(
+                Prefetch("packages", queryset=Package.objects.filter(is_active=True))
+            )
+        except RoomType.DoesNotExist:
+            raise NotFound("Accommodation or RoomType not found")
+        serializer = AllPackageCombinationsSerializer(combinations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
