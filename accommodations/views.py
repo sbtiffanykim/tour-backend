@@ -36,7 +36,7 @@ class AccommodationDetailView(APIView):
 
     def get(self, request, pk):
         try:
-            accommodation = Accommodation.objects.prefetch_related("room_types__packages").get(pk=pk)
+            accommodation = Accommodation.objects.get(pk=pk)
         except Accommodation.DoesNotExist:
             raise NotFound("Accommodation not found")
         serializer = AccommodationDetailSerializer(accommodation)

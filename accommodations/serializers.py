@@ -28,7 +28,6 @@ class AccommodationListSerializer(ModelSerializer):
 
 class AccommodationDetailSerializer(ModelSerializer):
 
-    room_types = RoomTypeWithPackageSerializer(read_only=True, many=True)
     amenities = AmenitySerializer(read_only=True, many=True)
     city = CitySerializer(read_only=True)
 
