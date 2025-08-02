@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from .models import Accommodation, City, Amenity
 from room_types.models import RoomType
-from room_types.serializers import RoomTypeWithPackageSerializer
+from packages.serializers import PackageSerializer
 
 
 class CitySerializer(ModelSerializer):
@@ -39,6 +39,8 @@ class AccommodationDetailSerializer(ModelSerializer):
 
 class AllPackageCombinationsSerializer(ModelSerializer):
 
+    packages = PackageSerializer(many=True, read_only=True)
+
     class Meta:
         model = RoomType
-        exclude = ["accommodation"]
+        fields = "__all__"
