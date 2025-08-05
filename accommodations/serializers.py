@@ -1,12 +1,12 @@
-from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, StringRelatedField
 from .models import Accommodation, City, Amenity
 from room_types.models import RoomType
-from packages.models import PackageDailyAvailability
+from packages.models import Package
 from packages.serializers import PackageSerializer, PackageDailyAvailabilitySerializer
 
 
 class CitySerializer(ModelSerializer):
+    """Serializer for displaying city with its name only"""
 
     class Meta:
         model = City
@@ -14,6 +14,7 @@ class CitySerializer(ModelSerializer):
 
 
 class AmenitySerializer(ModelSerializer):
+    """Serializer for displaying amenity details"""
 
     class Meta:
         model = Amenity
@@ -21,6 +22,7 @@ class AmenitySerializer(ModelSerializer):
 
 
 class AccommodationListSerializer(ModelSerializer):
+    """Serializer for listing accommodations with basic info"""
 
     city = CitySerializer(read_only=True)
 
@@ -30,6 +32,7 @@ class AccommodationListSerializer(ModelSerializer):
 
 
 class AccommodationDetailSerializer(ModelSerializer):
+    """Serializer for detailed accommodation with its info"""
 
     amenities = AmenitySerializer(read_only=True, many=True)
     city = CitySerializer(read_only=True)
@@ -40,6 +43,7 @@ class AccommodationDetailSerializer(ModelSerializer):
 
 
 class AllPackageCombinationsSerializer(ModelSerializer):
+    """Serializer for retrieving all packages for a room type"""
 
     packages = PackageSerializer(many=True, read_only=True)
 
@@ -49,10 +53,11 @@ class AllPackageCombinationsSerializer(ModelSerializer):
 
 
 class AvailablePackageCombinationsSerializer(ModelSerializer):
+    """Serializer for available package combinations with daily prices"""
 
-    room_type = serializers.StringRelatedField()
+    room_type = StringRelatedField()
     daily_prices = PackageDailyAvailabilitySerializer(many=True, read_only=True)
 
     class Meta:
-        model = RoomType
+        model = Package
         fields = ["id", "name", "room_type", "description", "daily_prices"]
