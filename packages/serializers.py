@@ -3,7 +3,7 @@ from .models import Package, PackageDailyAvailability
 
 
 class PackageDailyAvailabilitySerializer(ModelSerializer):
-    """Daily availability and price for a package"""
+    """Serializer for displaying daily availability and price for a package"""
 
     class Meta:
         model = PackageDailyAvailability
