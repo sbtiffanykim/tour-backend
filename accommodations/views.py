@@ -18,6 +18,27 @@ from .serializers import (
 )
 
 
+def validate_dates(check_in_str, check_out_str):
+    """Validate check_in and check_out dates"""
+    if not check_in_str and not check_out_str:
+        today = timezone.now().date()
+        return today, today + timedelta(days=1)
+
+    if (check_in_str and not check_out_str) or (not check_in_str and check_out_str):
+        raise ValidationError("Both 'check_in' and 'check_out' must be provided together")
+
+    try:
+        check_in = datetime.strptime(check_in_str, "%Y-%m-%d").date()
+        check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValidationError('"Invalid date format. Use YYYY-MM-DD"')
+
+    if check_in >= check_out:
+        raise ValidationError("'check_in' must be earlier than 'check_out'")
+
+    return check_in, check_out
+
+
 class AccommodationListView(ListAPIView):
     """API view to retrieve a list of accommodations with optional region filter"""
 
@@ -65,7 +86,7 @@ class AllPackageCombinationsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class AvailablePackageCombinationsView(APIView):
+class AvailableRoomPackagesView(APIView):
     """API view to retrieve filtered available room-package combinations based on user selection"""
 
     def get(self, request, pk):
@@ -76,46 +97,24 @@ class AvailablePackageCombinationsView(APIView):
         guests = int(request.query_params.get("guests", 2))
 
         # Validate dates
-        if not check_in_str and not check_out_str:
-            check_in_str = f"{timezone.now().date()}"
-            check_out_str = f"{timezone.now().date() + timedelta(days=1)}"
+        check_in, check_out = validate_dates(check_in_str, check_out_str)
 
-        if (check_in_str and not check_out_str) or (not check_in_str and check_out_str):
-            raise ValidationError("Both 'check_in' and 'check_out' must be provided together")
-
-        try:
-            check_in = datetime.strptime(check_in_str, "%Y-%m-%d").date()
-            check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
-        except ValueError:
-            raise ValidationError('"Invalid date format. Use YYYY-MM-DD"')
-
-        if check_in >= check_out:
-            raise ValidationError("'check_in' must be earlier than 'check_out'")
-
-        # fetching data with given conditions
-        try:
-            combinations = Package.objects.filter(
-                is_active=True,
-                room_type__accommodation_id=pk,
-                room_type__base_occupancy__lte=guests,
-                room_type__max_occupancy__gte=guests,
-            ).prefetch_related(
-                Prefetch(
-                    "daily_prices",
-                    queryset=PackageDailyAvailability.objects.filter(
-                        status=AvailabilityStatus.OPEN, date__gte=check_in, date__lt=check_out
-                    ),
-                )
+        # Fetching data with given conditions
+        packages = Package.objects.filter(
+            is_active=True,
+            room_type__accommodation_id=pk,
+            room_type__base_occupancy__lte=guests,
+            room_type__max_occupancy__gte=guests,
+        ).prefetch_related(
+            Prefetch(
+                "daily_prices",
+                queryset=PackageDailyAvailability.objects.filter(
+                    status=AvailabilityStatus.OPEN, date__gte=check_in, date__lt=check_out
+                ),
             )
-        except Package.DoesNotExist:
-            return Response({"message": "No combinations available"}, status=status.HTTP_404_NOT_FOUND)
-
+        )
         # Filter out packages without daily_prices or room_type
-        availble = []
-        for pkg in combinations:
-            if pkg.room_type and pkg.daily_prices.all():
-                availble.append(pkg)
+        available_packages = [pkg for pkg in packages if pkg.room_type and pkg.daily_prices.all()]
 
-        serializer = FilteredPackageSerializer(availble, many=True)
-
+        serializer = FilteredPackageSerializer(available_packages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
