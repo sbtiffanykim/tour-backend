@@ -72,17 +72,17 @@ class AccommodationDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class AllPackageCombinationsView(APIView):
+class RoomPackageListView(APIView):
     """API view to retrieve all room types and package combinations for a given accommodation"""
 
     def get(self, request, pk):
 
         if not Accommodation.objects.filter(pk=pk).exists():
             raise NotFound("Accommodation not found")
-        combinations = RoomType.objects.filter(accommodation_id=pk).prefetch_related(
+        room_types = RoomType.objects.filter(accommodation_id=pk).prefetch_related(
             Prefetch("packages", queryset=Package.objects.filter(is_active=True))
         )
-        serializer = AllRoomPackagesSerializer(combinations, many=True)
+        serializer = AllRoomPackagesSerializer(room_types, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
