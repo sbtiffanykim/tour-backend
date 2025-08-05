@@ -7,7 +7,7 @@ from packages.models import Package
 # ----- Constants -----
 BASE_URL = "/api/v1/accommodations/"
 DETAIL_URL = lambda pk: f"{BASE_URL}{pk}"
-ALL_COMBINATIONS_URL = lambda pk: f"{BASE_URL}{pk}/package-combinations"
+ALL_PACKAGES_URL = lambda pk: f"{BASE_URL}{pk}/room-packages"
 
 
 # ----- Fixtures -----
@@ -18,6 +18,7 @@ def client():
 
 @pytest.fixture
 def sample_accommodations(db):
+
     city1 = City.objects.create(name="Seoul")
     city2 = City.objects.create(name="Busan")
 
@@ -93,18 +94,18 @@ def test_get_accommodation_detail_not_found(client, sample_accommodations):
 
 
 # Success
-def test_get_all_combinations_success(client, sample_accommodations):
+def test_get_all_packages_success(client, sample_accommodations):
     accommodation = sample_accommodations[0]
-    response = client.get(ALL_COMBINATIONS_URL(accommodation.id))
+    response = client.get(ALL_PACKAGES_URL(accommodation.id))
 
     assert response.status_code == 200
     assert isinstance(response.data, list)
 
 
 # Failure
-def test_get_all_combinations_not_found(client, sample_accommodations):
+def test_get_all_packages_not_found(client, sample_accommodations):
     non_existent_id = 999999
-    response = client.get(ALL_COMBINATIONS_URL(non_existent_id))
+    response = client.get(ALL_PACKAGES_URL(non_existent_id))
 
     assert response.status_code == 404
     assert response.data["detail"] == "Accommodation not found"
