@@ -2,8 +2,8 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from .models import Accommodation, City, Amenity
 from room_types.models import RoomType
-from packages.models import PackagePrice
-from packages.serializers import PackageSerializer, PackagePriceSerializer
+from packages.models import PackageDailyAvailability
+from packages.serializers import PackageSerializer, PackageDailyAvailabilitySerializer
 
 
 class CitySerializer(ModelSerializer):
@@ -51,7 +51,7 @@ class AllPackageCombinationsSerializer(ModelSerializer):
 class AvailablePackageCombinationsSerializer(ModelSerializer):
 
     room_type = serializers.StringRelatedField()
-    daily_prices = PackagePriceSerializer(many=True, read_only=True)
+    daily_prices = PackageDailyAvailabilitySerializer(many=True, read_only=True)
 
     class Meta:
         model = RoomType

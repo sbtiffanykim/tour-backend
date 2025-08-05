@@ -1,17 +1,17 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Package, PackagePrice
+from .models import Package, PackageDailyAvailability
 
 
-class PackagePriceSerializer(ModelSerializer):
+class PackageDailyAvailabilitySerializer(ModelSerializer):
 
     class Meta:
-        model = PackagePrice
+        model = PackageDailyAvailability
         fields = ["date", "price", "status"]
 
 
 class PackageSerializer(ModelSerializer):
 
-    daily_prices = PackagePriceSerializer(many=True, read_only=True)
+    daily_prices = PackageDailyAvailabilitySerializer(many=True, read_only=True)
 
     class Meta:
         model = Package

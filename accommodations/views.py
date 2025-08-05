@@ -8,7 +8,7 @@ from django.db.models import Prefetch
 from datetime import datetime, timedelta
 from .models import Accommodation
 from room_types.models import RoomType
-from packages.models import Package, PackagePrice, AvailabilityStatus
+from packages.models import Package, PackageDailyAvailability, AvailabilityStatus
 from .serializers import (
     AccommodationListSerializer,
     AccommodationDetailSerializer,
@@ -99,7 +99,7 @@ class AvailablePackageCombinationsView(APIView):
             ).prefetch_related(
                 Prefetch(
                     "daily_prices",
-                    queryset=PackagePrice.objects.filter(
+                    queryset=PackageDailyAvailability.objects.filter(
                         status=AvailabilityStatus.OPEN, date__gte=check_in, date__lt=check_out
                     ),
                 )

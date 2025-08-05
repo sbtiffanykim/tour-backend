@@ -20,12 +20,12 @@ class AvailabilityStatus(models.TextChoices):
     CLOSED = "close", "Unavailable"
 
 
-class PackagePrice(models.Model):
-    """Model Definition for daily package price"""
+class PackageDailyAvailability(models.Model):
+    """Daily availability and price for a package"""
 
     package = models.ForeignKey("packages.Package", on_delete=models.CASCADE, related_name="daily_prices")
     date = models.DateField()
-    price = models.PositiveIntegerField(help_text="daily price")
+    price = models.PositiveIntegerField(help_text="daily price in KRW")
     status = models.CharField(
         max_length=15,
         choices=AvailabilityStatus,
@@ -35,3 +35,8 @@ class PackagePrice(models.Model):
 
     class Meta:
         unique_together = ("package", "date")
+        verbose_name = "Package Daily Availability"
+        verbose_name_plural = "Package Daily Availabilities"
+
+    def __str__(self):
+        return f"{self.package.room_type}-{self.package.name} | {self.date} : {self.status}"
