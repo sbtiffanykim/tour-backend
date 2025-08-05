@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Prefetch
 from datetime import datetime, timedelta
+
 from .models import Accommodation
 from room_types.models import RoomType
 from packages.models import Package, PackageDailyAvailability, AvailabilityStatus
@@ -18,7 +19,7 @@ from .serializers import (
 
 
 class AccommodationListView(ListAPIView):
-    """API view to retrieve a list of accommodations"""
+    """API view to retrieve a list of accommodations with optional region filter"""
 
     serializer_class = AccommodationListSerializer
 
@@ -39,7 +40,7 @@ class AccommodationListView(ListAPIView):
 
 
 class AccommodationDetailView(APIView):
-    """API view to retrieve an accommodation detailed info"""
+    """API view to retrieve detailed info about a specific accommodation"""
 
     def get(self, request, pk):
         try:
@@ -51,7 +52,7 @@ class AccommodationDetailView(APIView):
 
 
 class AllPackageCombinationsView(APIView):
-    """Returns all room_type + package combinations for a given accommodation regardless of availability or selected date"""
+    """API view to retrieve all room types and package combinations for a given accommodation"""
 
     def get(self, request, pk):
 
@@ -65,6 +66,8 @@ class AllPackageCombinationsView(APIView):
 
 
 class AvailablePackageCombinationsView(APIView):
+    """API view to retrieve filtered available room-package combinations based on user selection"""
+
     def get(self, request, pk):
 
         # Parse query parameters
