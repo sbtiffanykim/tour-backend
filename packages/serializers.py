@@ -15,4 +15,4 @@ class PackageSerializer(ModelSerializer):
 
     class Meta:
         model = Package
-        fields = "__all__"
+        fields = ["id", "name", "description", "price", "is_active", "daily_prices"]
