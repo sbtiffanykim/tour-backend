@@ -7,6 +7,7 @@ from packages.models import Package
 # ----- Constants -----
 BASE_URL = "/api/v1/accommodations/"
 DETAIL_URL = lambda pk: f"{BASE_URL}{pk}"
+ALL_COMBINATIONS_URL = lambda pk: f"{BASE_URL}{pk}/package-combinations"
 
 
 # ----- Fixtures -----
@@ -76,10 +77,6 @@ def test_get_accommodation_detail_success(client, sample_accommodations):
     assert response.status_code == 200
     assert response.data["id"] == accommodation.id
     assert response.data["name"] == accommodation.name
-    assert "room_types" in response.data
-    assert isinstance(response.data["room_types"], list)
-    assert "packages" in response.data["room_types"][0]
-    assert isinstance(response.data["room_types"][0]["packages"], list)
 
 
 # Failure
@@ -87,6 +84,23 @@ def test_get_accommodation_detail_success(client, sample_accommodations):
 def test_get_accommodation_detail_not_found(client, sample_accommodations):
     non_existent_id = 999999
     response = client.get(DETAIL_URL(non_existent_id))
+
+    assert response.status_code == 404
+    assert response.data["detail"] == "Accommodation not found"
+
+
+# ----- AllPackageCombinationsView Test -----
+def test_get_all_combinations_success(client, sample_accommodations):
+    accommodation = sample_accommodations[0]
+    response = client.get(ALL_COMBINATIONS_URL(accommodation.id))
+
+    assert response.status_code == 200
+    assert isinstance(response.data, list)
+
+
+def test_get_all_combinations_not_found(client, sample_accommodations):
+    non_existent_id = 999999
+    response = client.get(ALL_COMBINATIONS_URL(non_existent_id))
 
     assert response.status_code == 404
     assert response.data["detail"] == "Accommodation not found"
