@@ -8,6 +8,7 @@ from .serializers import SignUpSeriailzer, PrivateUserSerializer, ChangePassword
 
 
 class SignUpView(APIView):
+    """API view to create a new user account"""
 
     def post(self, request):
         serializer = SignUpSeriailzer(data=request.data)
@@ -32,6 +33,7 @@ class SignUpView(APIView):
 
 
 class LogOutView(APIView):
+    """API view to log out currently authenticated user"""
 
     permission_classes = [IsAuthenticated]
 
@@ -41,6 +43,8 @@ class LogOutView(APIView):
 
 
 class LogInView(APIView):
+    """API view to log in the user"""
+
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -56,6 +60,7 @@ class LogInView(APIView):
 
 
 class PrivateUserView(APIView):
+    """API view to retrieve and update authenticated user's profile information"""
 
     permission_classes = [IsAuthenticated]
 
@@ -71,6 +76,7 @@ class PrivateUserView(APIView):
 
 
 class ChangePasswordView(APIView):
+    """Allow authenticated user to change own password"""
 
     permission_classes = [IsAuthenticated]
 
