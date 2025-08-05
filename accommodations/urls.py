@@ -4,6 +4,6 @@ from . import views
 urlpatterns = [
     path("", views.AccommodationListView.as_view()),
     path("<int:pk>", views.AccommodationDetailView.as_view()),
-    path("<int:pk>/package-combinations", views.AllPackageCombinationsView.as_view()),
-    path("<int:pk>/available-combinations", views.AvailablePackageCombinationsView.as_view()),
+    path("<int:pk>/room-packages", views.AllPackageCombinationsView.as_view()),
+    path("<int:pk>/available-room-packages", views.AvailablePackageCombinationsView.as_view()),
 ]
