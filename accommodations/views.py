@@ -12,8 +12,8 @@ from packages.models import Package, PackageDailyAvailability, AvailabilityStatu
 from .serializers import (
     AccommodationListSerializer,
     AccommodationDetailSerializer,
-    AllPackageCombinationsSerializer,
-    AvailablePackageCombinationsSerializer,
+    AllRoomPackagesSerializer,
+    FilteredPackageSerializer,
 )
 
 
@@ -60,7 +60,7 @@ class AllPackageCombinationsView(APIView):
         combinations = RoomType.objects.filter(accommodation_id=pk).prefetch_related(
             Prefetch("packages", queryset=Package.objects.filter(is_active=True))
         )
-        serializer = AllPackageCombinationsSerializer(combinations, many=True)
+        serializer = AllRoomPackagesSerializer(combinations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -113,6 +113,6 @@ class AvailablePackageCombinationsView(APIView):
             if pkg.room_type and pkg.daily_prices.all():
                 availble.append(pkg)
 
-        serializer = AvailablePackageCombinationsSerializer(availble, many=True)
+        serializer = FilteredPackageSerializer(availble, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

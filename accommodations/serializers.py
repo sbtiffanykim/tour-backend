@@ -42,7 +42,7 @@ class AccommodationDetailSerializer(ModelSerializer):
         fields = "__all__"
 
 
-class AllPackageCombinationsSerializer(ModelSerializer):
+class AllRoomPackagesSerializer(ModelSerializer):
     """Serializer for retrieving all packages for a room type"""
 
     packages = PackageSerializer(many=True, read_only=True)
@@ -52,7 +52,7 @@ class AllPackageCombinationsSerializer(ModelSerializer):
         fields = "__all__"
 
 
-class AvailablePackageCombinationsSerializer(ModelSerializer):
+class FilteredPackageSerializer(ModelSerializer):
     """Serializer for available package combinations with daily prices"""
 
     room_type = StringRelatedField()
