@@ -3,6 +3,7 @@ from .models import Package, PackageDailyAvailability
 
 
 class PackageDailyAvailabilitySerializer(ModelSerializer):
+    """Daily availability and price for a package"""
 
     class Meta:
         model = PackageDailyAvailability
@@ -10,6 +11,7 @@ class PackageDailyAvailabilitySerializer(ModelSerializer):
 
 
 class PackageSerializer(ModelSerializer):
+    """Basic package serializer with daily availability data"""
 
     daily_prices = PackageDailyAvailabilitySerializer(many=True, read_only=True)
 
