@@ -89,7 +89,10 @@ def test_get_accommodation_detail_not_found(client, sample_accommodations):
     assert response.data["detail"] == "Accommodation not found"
 
 
-# ----- AllPackageCombinationsView Test -----
+# ----- RoomPackageListView Test -----
+
+
+# Success
 def test_get_all_combinations_success(client, sample_accommodations):
     accommodation = sample_accommodations[0]
     response = client.get(ALL_COMBINATIONS_URL(accommodation.id))
@@ -98,6 +101,7 @@ def test_get_all_combinations_success(client, sample_accommodations):
     assert isinstance(response.data, list)
 
 
+# Failure
 def test_get_all_combinations_not_found(client, sample_accommodations):
     non_existent_id = 999999
     response = client.get(ALL_COMBINATIONS_URL(non_existent_id))
