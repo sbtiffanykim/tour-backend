@@ -25,16 +25,16 @@ def validate_dates(check_in_str, check_out_str):
         return today, today + timedelta(days=1)
 
     if (check_in_str and not check_out_str) or (not check_in_str and check_out_str):
-        raise ValidationError("Both 'check_in' and 'check_out' must be provided together")
+        raise ValidationError({"error": "Both 'check_in' and 'check_out' must be provided together"})
 
     try:
         check_in = datetime.strptime(check_in_str, "%Y-%m-%d").date()
         check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
     except ValueError:
-        raise ValidationError('"Invalid date format. Use YYYY-MM-DD"')
+        raise ValidationError({"error": "Invalid date format. Use 'YYYY-MM-DD'"})
 
     if check_in >= check_out:
-        raise ValidationError("'check_in' must be earlier than 'check_out'")
+        raise ValidationError({"error": "'check_in' must be earlier than 'check_out'"})
 
     return check_in, check_out
 
