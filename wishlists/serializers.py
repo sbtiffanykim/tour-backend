@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, CharField
+from rest_framework.serializers import ModelSerializer, CharField, ValidationError
 from accommodations.serializers import AccommodationListSerializer
 from .models import Wishlist
 
@@ -8,9 +8,17 @@ class WishlistDetailSerializer(ModelSerializer):
 
     accommodations = AccommodationListSerializer(many=True, read_only=True)
     username = CharField(source="user.username", read_only=True)
+    name = CharField(required=True)
+
+    def validate(self, data):
+
+        # Throws an error if the required field is missing
+        if "name" not in data:
+            raise ValidationError({"name": "This field is required"})
+
+        return data
 
     class Meta:
         model = Wishlist
         fields = ["name", "username", "accommodations"]
         read_only_fields = ["username", "accommodations"]
-        extra_kwargs = {"name": {"required": True}}
