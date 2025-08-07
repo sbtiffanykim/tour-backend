@@ -4,7 +4,7 @@ from accommodations.models import Accommodation
 
 
 class Wishlist(models.Model):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, default="")
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="wishlists")
     accommodations = models.ManyToManyField(Accommodation, related_name="wishlists", blank=True)
 
