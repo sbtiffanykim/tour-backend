@@ -204,7 +204,7 @@ def test_add_acc_to_wishlist_acc_not_found(authenticated_client, sample_db):
     non_existent_accommodation_pk = 10000  # assume accommodation with this pk does not exist
     response = authenticated_client.post(ADD_ACC_TO_WISHLIST_URL(wishlist.pk, non_existent_accommodation_pk))
     assert response.status_code == 404
-    assert response.data["detail"] == "Accommodation not found"
+    assert response.data["error"] == "Accommodation not found"
 
 
 # ----- RemoveAccommodationToWishlistView Test -----
@@ -255,4 +255,4 @@ def test_remove_acc_from_wishlist_acc_not_found(authenticated_client, sample_db)
     non_existent_accommodation_pk = 10000  # assume accommodation with this pk does not exist
     response = authenticated_client.delete(REMOVE_ACC_FROM_WISHLIST_URL(wishlist.pk, non_existent_accommodation_pk))
     assert response.status_code == 404
-    assert response.data["detail"] == "Accommodation not found"
+    assert response.data["error"] == "Accommodation not found"

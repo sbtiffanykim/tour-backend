@@ -67,7 +67,7 @@ class AddAccommodationToWishlistView(APIView):
         try:
             accommodation = Accommodation.objects.get(pk=accommodation_pk)
         except Accommodation.DoesNotExist:
-            raise NotFound("Accommodation not found")
+            raise NotFound({"error": "Accommodation not found"})
         wishlist.accommodations.add(accommodation)
         serializer = WishlistDetailSerializer(wishlist)
         return Response({"success": "Accommodation added", "wishlist": serializer.data}, status=status.HTTP_200_OK)
@@ -81,7 +81,7 @@ class RemoveAccommodationFromWishlistView(APIView):
         try:
             accommodation = Accommodation.objects.get(pk=accommodation_pk)
         except Accommodation.DoesNotExist:
-            raise NotFound("Accommodation not found")
+            raise NotFound({"error": "Accommodation not found"})
         wishlist.accommodations.remove(accommodation)
         serializer = WishlistDetailSerializer(wishlist)
         return Response({"success": "Accommodation removed", "wishlist": serializer.data}, status=status.HTTP_200_OK)
