@@ -20,13 +20,20 @@ def get_wishlist_or_404(pk, user):
 
 
 class WishlistDetailView(APIView):
-    """API view that allows an authenticated user to retrieve or delete their own wishlist"""
+    """API view that allows an authenticated user to retrieve or delete or update(name only) their own wishlist"""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         wishlist = get_wishlist_or_404(pk, request.user)
         serializer = WishlistDetailSerializer(wishlist)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        wishlist = get_wishlist_or_404(pk, request.user)
+        serializer = WishlistDetailSerializer(wishlist, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
