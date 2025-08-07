@@ -7,6 +7,7 @@ from accommodations.models import Accommodation, City
 
 # ----- Constraints ----
 WISHLIST_DETAIL_URL = lambda pk: f"/api/v1/wishlists/{pk}"
+CREATE_WISHLIST_URL = f"/api/v1/wishlists/create"
 
 # ----- Fixtures -----
 
@@ -86,7 +87,7 @@ def test_delete_wishlist_detail_success(authenticated_client, sample_db):
     assert response.status_code == 204
 
 
-# Failure:
+# Failure
 @pytest.mark.django_db
 def test_delete_wishlist_detail_no_permission(client, sample_db, user_payload):
     wishlist = sample_db["wishlist"]
@@ -118,3 +119,26 @@ def test_edit_wishlist_detail_missing_name_field(authenticated_client, sample_db
 
     assert response.status_code == 400
     assert response.data["name"][0] == "This field is required"
+
+
+# ----- CreateWishlistView Test -----
+# Success
+@pytest.mark.django_db
+def test_create_wishlist_success(client, user_payload):
+    wishlist_name = {"name": "create wishlist"}
+    user_payload.update({"username": "test2", "email": "test2@gmail.com"})
+    new_user = User.objects.create(**user_payload)
+    client.force_login(new_user)
+    response = client.post(CREATE_WISHLIST_URL, wishlist_name)
+
+    assert response.status_code == 201
+    assert response.data["name"] == wishlist_name["name"]
+
+
+# Failure
+@pytest.mark.django_db
+def test_create_wishlist_already_exist(authenticated_client, sample_db):
+    response = authenticated_client.post(CREATE_WISHLIST_URL)
+
+    assert response.status_code == 400
+    assert response.data["error"] == "You already have a wishlist"
