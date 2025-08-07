@@ -40,3 +40,19 @@ class WishlistDetailView(APIView):
         wishlist = get_wishlist_or_404(pk, request.user)
         wishlist.delete()
         return Response({"message": "Your wishlist deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateWishlistView(APIView):
+    """API view that allows an authenticated user to create their own wishlist"""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # if a user already have their own wishlist, returns an error
+        if hasattr(request.user, "wishlists"):
+            return Response({"error": "You already have a wishlist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        name = request.data.get("name", f"{request.user}'s wishlist")
+        wishlist = Wishlist.objects.create(name=name, user=request.user)
+        serializer = WishlistDetailSerializer(wishlist)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
