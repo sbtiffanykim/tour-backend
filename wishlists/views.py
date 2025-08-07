@@ -73,7 +73,7 @@ class AddAccommodationToWishlistView(APIView):
         return Response({"success": "Accommodation added", "wishlist": serializer.data}, status=status.HTTP_200_OK)
 
 
-class RemoveAccommodationToWishlistView(APIView):
+class RemoveAccommodationFromWishlistView(APIView):
     """API view to remove an accommodation to the specified wishlist if both exist and the user has permission"""
 
     def delete(self, request, pk, accommodation_pk):
