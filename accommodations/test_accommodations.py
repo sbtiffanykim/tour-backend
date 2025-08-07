@@ -54,6 +54,7 @@ def sample_accommodations(db):
 
 
 # Success 1: All
+@pytest.mark.django_db
 def test_get_accommodation_list_all_success(client, sample_accommodations):
     response = client.get(BASE_URL)
     assert response.status_code == 200
@@ -61,6 +62,7 @@ def test_get_accommodation_list_all_success(client, sample_accommodations):
 
 
 # Success 2: With region params
+@pytest.mark.django_db
 def test_get_accommodation_list_with_region_success(client, sample_accommodations):
     response = client.get(BASE_URL, {"region": "seoul"})
     assert response.status_code == 200
@@ -68,6 +70,7 @@ def test_get_accommodation_list_with_region_success(client, sample_accommodation
 
 
 # Failure: No matching region
+@pytest.mark.django_db
 def test_get_accommodation_list_no_match(client, sample_accommodations):
     response = client.get(BASE_URL, {"region": "null"})
     assert response.status_code == 404
@@ -102,6 +105,7 @@ def test_get_accommodation_detail_not_found(client, sample_accommodations):
 
 
 # Success
+@pytest.mark.django_db
 def test_get_all_packages_success(client, sample_accommodations):
     accommodation = sample_accommodations["accommodation"]
     response = client.get(ALL_PACKAGES_URL(accommodation.id))
@@ -111,6 +115,7 @@ def test_get_all_packages_success(client, sample_accommodations):
 
 
 # Failure
+@pytest.mark.django_db
 def test_get_all_packages_not_found(client, sample_accommodations):
     non_existent_id = 999999
     response = client.get(ALL_PACKAGES_URL(non_existent_id))
@@ -138,6 +143,7 @@ def test_get_available_packages_success(client, sample_accommodations):
 
 
 # Failure1: check_in or check_out missing
+@pytest.mark.django_db
 def test_get_available_packages_missing_dates(client, sample_accommodations):
     accommodation = sample_accommodations["accommodation"]
     url = build_available_packages_url(accommodation.id, check_in=timezone.now().date())
@@ -148,6 +154,7 @@ def test_get_available_packages_missing_dates(client, sample_accommodations):
 
 
 # Failure2: invalid date format
+@pytest.mark.django_db
 def test_get_available_packages_invalid_date_format(client, sample_accommodations):
     accommodation = sample_accommodations["accommodation"]
     url = build_available_packages_url(accommodation.id, check_in="20250801", check_out="20250802")
@@ -158,6 +165,7 @@ def test_get_available_packages_invalid_date_format(client, sample_accommodation
 
 
 # Failure3: check_in >= check_out
+@pytest.mark.django_db
 def test_get_available_packages_check_in_after_check_out(client, sample_accommodations):
     accommodation = sample_accommodations["accommodation"]
     today = timezone.now().date()
@@ -169,6 +177,7 @@ def test_get_available_packages_check_in_after_check_out(client, sample_accommod
 
 
 # Failure3: No availability on that date - returns empty list
+@pytest.mark.django_db
 def test_get_available_packages_no_availability(client, sample_accommodations):
     accommodation = sample_accommodations["accommodation"]
     future_date = timezone.now().date() + timedelta(days=30)
@@ -176,4 +185,4 @@ def test_get_available_packages_no_availability(client, sample_accommodations):
     response = client.get(url)
 
     assert response.status_code == 200
-    assert response.data == []
+    assert len(response.data) == 0
