@@ -1,4 +1,5 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, StringRelatedField
+from packages.models import Package
 from .models import Package, PackageDailyAvailability
 
 
@@ -18,3 +19,14 @@ class PackageSerializer(ModelSerializer):
     class Meta:
         model = Package
         fields = ["id", "name", "description", "price", "is_active", "daily_prices"]
+
+
+class FilteredPackageSerializer(ModelSerializer):
+    """Serializer for available package combinations with daily prices"""
+
+    room_type = StringRelatedField()
+    daily_prices = PackageDailyAvailabilitySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Package
+        fields = ["id", "name", "room_type", "description", "daily_prices"]
