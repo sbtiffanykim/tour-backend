@@ -28,7 +28,7 @@ class Booking(models.Model):
     check_out = models.DateTimeField()
     guests = models.PositiveSmallIntegerField()
     # Status visible to customers
-    status = models.CharField(max_length=20, choices=BookingStatusChoices, default=BookingStatusChoices.PENDING)
+    status = models.CharField(max_length=20, choices=BookingStatusChoices.choices, default=BookingStatusChoices.PENDING)
 
     def __str__(self):
         return f"Booking #{self.id}"
