@@ -46,3 +46,13 @@ class BookingLineItem(models.Model):
 
     def __str__(self):
         return f"{self.booking} - {self.daily_availability.date}"
+
+
+class BookingAdminInfo(models.Model):
+    """Staff-only extended information for bookings."""
+
+    booking = models.OneToOneField("Booking", on_delete=models.CASCADE, related_name="admin_info")
+    staff_note = models.TextField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"Admin info for Booking #{self.booking.id}"
