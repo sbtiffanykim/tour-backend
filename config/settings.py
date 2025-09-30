@@ -42,6 +42,8 @@ CUSTOM_APPS = [
     "media.apps.MediaConfig",
     "reviews.apps.ReviewsConfig",
     "wishlists.apps.WishlistsConfig",
+    "bookings.apps.BookingsConfig",
+    "payments.apps.PaymentsConfig",
 ]
 
 SYSTEM_APPS = [
