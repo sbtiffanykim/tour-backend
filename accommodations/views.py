@@ -27,6 +27,17 @@ class AccommodationCollectionView(APIView):
         serializer = AccommodationListSerializer(accommodations, many=True)
         return Response({"region": region, "data": serializer.data}, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        required_fields = ["name", "location", "region"]
+        missing_or_empty = [field for field in required_fields if not request.data.get(field)]
+        if missing_or_empty:
+            raise ValidationError({field: "This field is required." for field in missing_or_empty})
+
+        serializer = CreateAccommodationSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AccommodationDetailView(APIView):
     """API view to retrieve detailed info about a specific accommodation"""
