@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
-from .models import User
+from .models import User, GuestInfo
 
 
 class UserCreationForm(forms.ModelForm):
@@ -80,3 +80,11 @@ class UserAdmin(UserAdmin):
 
     search_fields = ["username", "phone_number"]
     ordering = ["username"]
+
+
+@admin.register(GuestInfo)
+class GuestUserAdmin(admin.ModelAdmin):
+    list_display = ["first_name", "last_name", "phone_number", "num_of_bookings"]
+
+    def num_of_bookings(self, obj):
+        return obj.bookings.count()
