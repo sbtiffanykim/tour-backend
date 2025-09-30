@@ -3,12 +3,13 @@ from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Accommodation, Amenity
+from .models import Accommodation, Amenity, City
 from .serializers import (
     AccommodationListSerializer,
     AccommodationDetailSerializer,
     CreateAccommodationSerializer,
     AmenitySerializer,
+    CitySerializer,
 )
 
 
@@ -70,6 +71,28 @@ class AmenityCollectionView(APIView):
 
     def post(self, request):
         serializer = AmenitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CityCollectionView(APIView):
+    """
+    GET: List all cities
+    POST: Create city
+    """
+
+    def get(self, request):
+        try:
+            cities = City.objects.all()
+        except City.DoesNotExist:
+            raise NotFound("City not found")
+        serializer = CitySerializer(cities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = CitySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

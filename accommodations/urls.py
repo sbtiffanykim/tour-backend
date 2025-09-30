@@ -8,4 +8,5 @@ urlpatterns = [
     path("<int:pk>/room-packages", RoomPackageListView.as_view()),
     path("<int:pk>/available-room-packages", AvailableRoomPackagesView.as_view()),
     path("amenities", views.AmenityCollectionView.as_view()),  # GET, POST
+    path("cities", views.CityCollectionView.as_view()),  # GET, POST
 ]
