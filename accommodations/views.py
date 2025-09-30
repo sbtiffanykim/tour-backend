@@ -11,6 +11,7 @@ from .serializers import (
     AmenitySerializer,
     CitySerializer,
 )
+from common.permissions import IsStaffUser
 
 
 class AccommodationCollectionView(APIView):
@@ -61,6 +62,8 @@ class AmenityCollectionView(APIView):
     POST: Create amenity
     """
 
+    permission_classes = [IsStaffUser]
+
     def get(self, request):
         try:
             amenities = Amenity.objects.all()
@@ -82,6 +85,8 @@ class CityCollectionView(APIView):
     GET: List all cities
     POST: Create city
     """
+
+    permission_classes = [IsStaffUser]
 
     def get(self, request):
         try:
