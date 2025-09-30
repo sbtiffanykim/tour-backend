@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Accommodation, City, Amenity
+from .models import Accommodation, City, Amenity, AccommodationType
 from room_types.models import RoomType
 from packages.serializers import PackageSerializer
 
@@ -39,6 +39,33 @@ class AccommodationDetailSerializer(ModelSerializer):
     class Meta:
         model = Accommodation
         fields = "__all__"
+
+
+class CreateAccommodationSerializer(ModelSerializer):
+    """Serializer for creating a new accommodation"""
+
+    class Meta:
+        model = Accommodation
+        fields = "__all__"
+
+    # def create(self, validated_data):
+    #     # optioanl fields: put a default value if user does not sends
+    #     validated_data.setdefault("type", AccommodationType.RESORT)
+    #     validated_data.setdefault("x_coordinate", 0)
+    #     validated_data.setdefault("y_coordinate", 0)
+    #     validated_data.setdefault("homepage", "")
+    #     validated_data.setdefault("description", "")
+    #     validated_data.setdefault("check_in", None)
+    #     validated_data.setdefault("check_out", None)
+    #     validated_data.setdefault("cancellation_policy", None)
+    #     validated_data.setdefault("info", "")
+
+    #     amenities_data = validated_data.pop("amenities", [])
+    #     accommodation = super().create(validated_data)
+    #     if amenities_data:
+    #         accommodation.amenities.set(amenities_data)
+
+    #     return accommodation
 
 
 class AllRoomPackagesSerializer(ModelSerializer):
