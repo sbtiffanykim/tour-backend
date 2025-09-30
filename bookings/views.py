@@ -30,3 +30,36 @@ class BookingDetailView(generics.RetrieveAPIView):
             return booking
 
         raise PermissionDenied("Invalid guest credentials")
+
+
+class BookingCancelRequestView(APIView):
+    """Enables to cancel own booking (both loggged-in and guest users)"""
+
+    permission_classes = []  # allow both logged-in and guest users
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            raise NotFound("Booking not found.")
+
+        # 1. If the user is logged in, only allow their own bookings
+        if self.request.user.is_authenticated:
+            if self.request.user != booking.user:
+                raise PermissionDenied("You do not have permission to view this booking.")
+        # 2. Guest user access with booking id + phone verification
+        guest_phone = self.request.query_params.get("phone")
+
+        if not booking.guest_user:
+            raise PermissionDenied()
+        if not guest_phone and guest_phone != booking.guest_user.phone_number:
+            raise PermissionDenied("Invalid guest credentials")
+
+        if booking.status == BookingStatusChoices.CANCEL_REQUESTED:
+            return Response({"detail": "Already requested cancellation."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Change status
+        booking.status = BookingStatusChoices.CANCEL_REQUESTED
+        booking.save()
+
+        return Response({"detail": "Cancellation requested."}, status=status.HTTP_200_OK)
