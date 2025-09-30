@@ -7,29 +7,35 @@ from .models import Booking, BookingStatusChoices
 from .serializers import BookingDetailSerializer
 
 
+def get_booking_for_user_or_guest(request, booking_id):
+    """Retrieve a booking for authenticated users or guest with phone verification"""
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+    except Booking.DoesNotExist:
+        raise NotFound("Booking not found.")
+
+    # Logged-in user: can only access their own bookings
+    if request.user.is_authenticated:
+        if request.user != booking.user:
+            raise PermissionDenied("You do not have permission to view this booking.")
+        return booking
+
+    # Guest access: must provide phone number
+    guest_phone = request.query_params.get("phone")
+    if not guest_phone or not booking.guest_user or guest_phone != booking.guest_user.phone_number:
+        raise PermissionDenied("Invalid guest credentials")
+    return booking
+
+
 class BookingDetailView(generics.RetrieveAPIView):
+    """Retrieve a single booking (both logged-in and guest users)"""
+
     queryset = Booking.objects.all()
     serializer_class = BookingDetailSerializer
     permission_classes = []  # allow both logged-in and guest users
 
     def get_object(self):
-        booking = super().get_object()
-
-        # 1. If the user is logged in, only allow their own bookings
-        if self.request.user.is_authenticated:
-            if self.request.user != booking.user:
-                raise PermissionDenied("You do not have permission to view this booking.")
-            return booking
-
-        # 2. Guest user access with booking id + phone verification
-        guest_phone = self.request.query_params.get("phone")
-
-        if not booking.guest_user:
-            raise PermissionDenied()
-        if guest_phone and guest_phone == booking.guest_user.phone_number:
-            return booking
-
-        raise PermissionDenied("Invalid guest credentials")
+        return get_booking_for_user_or_guest(self.request, self.kwargs["pk"])
 
 
 class BookingCancelRequestView(APIView):
@@ -38,22 +44,7 @@ class BookingCancelRequestView(APIView):
     permission_classes = []  # allow both logged-in and guest users
 
     def post(self, request, pk):
-        try:
-            booking = Booking.objects.get(pk=pk)
-        except Booking.DoesNotExist:
-            raise NotFound("Booking not found.")
-
-        # 1. If the user is logged in, only allow their own bookings
-        if self.request.user.is_authenticated:
-            if self.request.user != booking.user:
-                raise PermissionDenied("You do not have permission to view this booking.")
-        # 2. Guest user access with booking id + phone verification
-        guest_phone = self.request.query_params.get("phone")
-
-        if not booking.guest_user:
-            raise PermissionDenied()
-        if not guest_phone and guest_phone != booking.guest_user.phone_number:
-            raise PermissionDenied("Invalid guest credentials")
+        booking = get_booking_for_user_or_guest(request, pk)
 
         if booking.status == BookingStatusChoices.CANCEL_REQUESTED:
             return Response({"detail": "Already requested cancellation."}, status=status.HTTP_400_BAD_REQUEST)
