@@ -9,6 +9,8 @@ class BookingStatusChoices(models.TextChoices):
     PENDING = "pending", "Pending"
     APPROVED = "approved", "Approved"
     DENIDED = "denied", "Denied"
+    CANCEL_REQUESTED = "cancel_requested", "Cancel Requested"
+    CANCELLED = "cancelled", "Cancelled"
 
 
 class Booking(models.Model):
