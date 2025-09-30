@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path("<int:pk>", views.BookingDetailView.as_view()),
+    path("<int:pk>/request-cancel", views.BookingCancelRequestView.as_view()),
 ]
