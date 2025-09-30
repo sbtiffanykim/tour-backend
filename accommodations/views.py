@@ -3,8 +3,13 @@ from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Accommodation
-from .serializers import AccommodationListSerializer, AccommodationDetailSerializer, CreateAccommodationSerializer
+from .models import Accommodation, Amenity
+from .serializers import (
+    AccommodationListSerializer,
+    AccommodationDetailSerializer,
+    CreateAccommodationSerializer,
+    AmenitySerializer,
+)
 
 
 class AccommodationCollectionView(APIView):
@@ -16,11 +21,8 @@ class AccommodationCollectionView(APIView):
     def get(self, request):
         region = request.query_params.get("region", "all")
         accommodations = Accommodation.objects.all()
-        print(accommodations)
-
         if not accommodations.exists():
             return NotFound("Accommodation not found.")
-
         if region != "all":
             accommodations = accommodations.filter(region=region)
 
@@ -49,3 +51,25 @@ class AccommodationDetailView(APIView):
             raise NotFound("Accommodation not found")
         serializer = AccommodationDetailSerializer(accommodation)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AmenityCollectionView(APIView):
+    """
+    GET: List all amenities
+    POST: Create amenity
+    """
+
+    def get(self, request):
+        try:
+            amenities = Amenity.objects.all()
+        except Amenity.DoesNotExist:
+            raise NotFound("Amenity not found")
+        serializer = AmenitySerializer(amenities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = AmenitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
